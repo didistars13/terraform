@@ -1,0 +1,41 @@
+# Terraform state files
+*.tfstate
+*.tfstate.*
+
+# Terraform crash log files
+crash.log
+
+# Terraform plan files
+*.tfplan
+
+# Local .terraform directories
+.terraform/
+.terraform.lock.hcl
+
+# Override files (used for local development overrides)
+*.tfvars
+*.tfvars.json
+
+# Credentials and secrets
+credentials.json
+*.auto.tfvars
+*.auto.tfvars.json
+*.pem
+*.key
+*.crt
+
+# Backup files
+*.backup
+*.bak
+*.tmp
+
+# IDE and editor-specific files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# OS-generated files
+*.swp
+*.swo
+*.log
