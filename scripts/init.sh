@@ -35,7 +35,7 @@ terraform {
 EOF
 
 # Reinitialize Terraform to switch to the S3 backend and migrate state
-terraform init -migrate-state -input=false
+terraform init -migrate-state
 
 # Step 4: Apply the resources to verify everything is working
 echo "Step 4: Applying resources with the S3 backend..."
