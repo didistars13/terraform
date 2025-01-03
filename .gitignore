@@ -39,3 +39,6 @@ Thumbs.db
 *.swp
 *.swo
 *.log
+
+# Dynamic Backend File
+infra/aws/project/init/backend.tf
