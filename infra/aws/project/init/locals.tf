@@ -1,3 +1,3 @@
 locals {
-  bucket = "test-aws328-tfstate"
+  bucket = "init-aws328-tfstate"
 }

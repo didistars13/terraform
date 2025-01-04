@@ -1,10 +1,7 @@
-data "aws_vpc" "main" {
-  id = output.vps_id
-}
-resource "aws_security_group" "sg_my_server" {
-  name        = "sg_my_server"
-  description = "MyServer Security Group"
-  vpc_id      = data.aws_vpc.main.id
+resource "aws_security_group" "default" {
+  name        = "default_ports"
+  description = "Default ports for the VPC"
+  vpc_id      = module.vpc.vpc_id
 
   ingress = [
     {
@@ -23,7 +20,7 @@ resource "aws_security_group" "sg_my_server" {
       from_port        = 22
       to_port          = 22
       protocol         = "tcp"
-      cidr_blocks      = ["104.194.51.113/32"]
+      cidr_blocks      = [var.my_ip]
       ipv6_cidr_blocks = []
       prefix_list_ids  = []
       security_groups  = []
@@ -44,4 +41,8 @@ resource "aws_security_group" "sg_my_server" {
       self             = false
     }
   ]
+
+  tags = {
+    Name = "${var.env}-ssh-access"
+  }
 }

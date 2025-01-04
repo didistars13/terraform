@@ -1,3 +1,8 @@
+resource "aws_s3_bucket" "main_bucket" {
+  bucket        = "dev-terraform-state-lock"
+  force_destroy = true
+}
+
 terraform {
   required_providers {
     aws = {
@@ -7,19 +12,10 @@ terraform {
   }
 
   backend "s3" {
-    bucket         = data.terraform_remote_state.org.outputs.org_tfstate_bucket
-    key            = data.terraform_remote_state.org.outputs.org_tfstate_key
-    region         = data.terraform_remote_state.org.outputs.org_tfstate_region
-    dynamodb_table = data.terraform_remote_state.org.outputs.org_tfstate_table
-    encrypt        = data.terraform_remote_state.org.outputs.org_tfstate_encryption
-  }
-}
-
-data "terraform_remote_state" "org" {
-  backend = "s3"
-  config = {
-    bucket = "test-aws328-tfstate"
-    key    = "terraform.tfstate"
-    region = local.region
+    bucket         = "dev_aws328_tfstate"
+    key            = "dev/terraform.tfstate"
+    region         = "eu-central-1"
+    dynamodb_table = "dev-terraform-state-lock"
+    encrypt        = true
   }
 }
