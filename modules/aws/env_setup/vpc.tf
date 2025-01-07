@@ -4,13 +4,13 @@ module "vpc" {
   cidr            = var.vpc_cidr
   azs             = var.azs
   private_subnets = var.private_subnets
-  public_subnets  = var.private_subnets
+  public_subnets  = var.public_subnets
 
   enable_nat_gateway = true
   enable_vpn_gateway = true
 
   tags = {
-    Name      = var.vpc_name
-    Terraform = "true"
+    Environment = var.vpc_name
+    Terraform   = "true"
   }
 }

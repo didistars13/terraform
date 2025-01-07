@@ -28,9 +28,9 @@ variable "key_name" {
   type        = string
 }
 
-variable "my_ip" {
-  description = "Your IP address for SSH access"
-  type        = string
+variable "allowed_cidr_blocks" {
+  description = "List of allowed CIDR blocks for SSH access"
+  type        = list(string)
 }
 
 variable "private_key" {
