@@ -1,15 +1,15 @@
 output "public_ip" {
-  value = aws_instance.my_server.public_ip
+  value = module.dev_ec2.instance_public_ip
 }
+
 output "instance_id" {
-  value = aws_instance.my_server.id
+  value = module.dev_ec2.instance_id
 }
-output "instance_tags" {
-  value = aws_instance.my_server.tags_all
-}
+
 output "vps_id" {
-  value = module.vpc.vpc_id
+  value = module.dev_ec2.vpc_id
 }
-output "gw_id" {
-  value = module.vpc.igw_id
+
+output "igw_id" {
+  value = module.dev_ec2.igw_id
 }

@@ -16,11 +16,12 @@ resource "aws_security_group" "default" {
       self             = false
     },
     {
-      description      = "SSH"
-      from_port        = 22
-      to_port          = 22
-      protocol         = "tcp"
-      cidr_blocks      = [var.my_ip]
+      description = "SSH"
+      from_port   = 22
+      to_port     = 22
+      protocol    = "tcp"
+      cidr_blocks = var.allowed_cidr_blocks
+      #cidr_blocks      = ["0.0.0.0/0"]
       ipv6_cidr_blocks = []
       prefix_list_ids  = []
       security_groups  = []
@@ -43,6 +44,6 @@ resource "aws_security_group" "default" {
   ]
 
   tags = {
-    Name = "${var.env}-ssh-access"
+    Name = "${var.env}-default-access"
   }
 }
