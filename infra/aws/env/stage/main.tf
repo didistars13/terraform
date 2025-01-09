@@ -1,4 +1,4 @@
-module "dev_ec2" {
+module "stage_ec2" {
   source              = "../../../../modules/aws/env_setup"
   ami                 = local.ami
   azs                 = local.azs

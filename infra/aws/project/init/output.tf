@@ -1,3 +1,10 @@
+locals {
+  environments = {
+    dev   = module.dev
+    stage = module.stage
+  }
+}
+
 output "dynamodb_table" {
   description = "Value of dynamodb_table"
   value       = resource.aws_dynamodb_table.state_lock.name
@@ -13,12 +20,12 @@ output "force_destroy" {
   value       = aws_s3_bucket.main_bucket.force_destroy
 }
 
-output "dev_bucket_name" {
-  description = "The name of the S3 bucket in the dev environment"
-  value       = module.dev.env_tfstate_bucket
+output "bucket_names" {
+  description = "The names of the S3 buckets in each environment"
+  value       = { for env, module in local.environments : env => module.env_tfstate_bucket }
 }
 
-output "dev_state_lock_table" {
-  description = "The name of the DynamoDB table in the dev environment"
-  value       = module.dev.env_state_lock_table
+output "state_lock_tables" {
+  description = "The names of the DynamoDB tables in each environment"
+  value       = { for env, module in local.environments : env => module.env_state_lock_table }
 }

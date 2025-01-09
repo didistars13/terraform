@@ -1,5 +1,5 @@
 locals {
-  env             = "dev"
+  env             = "dev" # Change this to the appropriate environment (e.g., "dev", "prod")
   ami             = "ami-0e54671bdf3c8ed8d"
   azs             = ["eu-central-1a", "eu-central-1b", "eu-central-1c"]
   instance_name   = "${local.env}_instance"
