@@ -69,11 +69,6 @@ variable "vpc_cidr" {
   type        = string
 }
 
-variable "user_data" {
-  description = "Path to the user data script to use for the instance"
-  type        = string
-}
-
 variable "tags" {
   description = "Tags to apply to the instance"
   type        = map(string)

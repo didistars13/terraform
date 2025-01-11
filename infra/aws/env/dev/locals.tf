@@ -10,7 +10,7 @@ locals {
   public_subnets  = ["10.0.101.0/24", "10.0.102.0/24", "10.0.103.0/24"]
   public_key      = file("~/.ssh/dev_deployer.pub")
   region          = "eu-central-1"
-  user_data       = file("./userdata.yaml")
+  index_file      = "./index.sh"
   vpc_cidr        = "10.0.0.0/16"
   vpc_name        = "${local.env}_vpc"
 }

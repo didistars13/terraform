@@ -12,9 +12,9 @@ module "dev_ec2" {
   public_key          = local.public_key
   public_subnets      = local.public_subnets
   region              = local.region
-  user_data           = local.user_data
   vpc_cidr            = local.vpc_cidr
   vpc_name            = local.vpc_name
+  index_file          = local.index_file
   tags = {
     Environment = local.env
   }
