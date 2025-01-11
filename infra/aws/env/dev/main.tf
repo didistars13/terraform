@@ -14,7 +14,6 @@ module "dev_ec2" {
   region              = local.region
   vpc_cidr            = local.vpc_cidr
   vpc_name            = local.vpc_name
-  index_file          = local.index_file
   tags = {
     Environment = local.env
   }
