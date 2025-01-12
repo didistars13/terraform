@@ -20,3 +20,12 @@ resource "aws_instance" "my_server" {
     Name = var.instance_name
   }
 }
+
+resource "null_resource" "status_check" {
+  triggers = {
+    instance_id = aws_instance.my_server.id
+  }
+  provisioner "local-exec" {
+    command = "aws ec2 wait instance-status-ok --instance-ids ${aws_instance.my_server.id}"
+  }
+}
