@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>EC2 Instance Information</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, violet, lightblue);
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+        h1 {
+            text-align: center;
+            color: white;
+            padding: 20px;
+            background-color: #4B0082; /* Indigo */
+        }
+        table {
+            margin: 20px auto;
+            border-collapse: collapse;
+            width: 80%;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #6A5ACD; /* Slate Blue */
+            color: white;
+        }
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        tr:hover {
+            background-color: #ddd;
+        }
+    </style>
+</head>
+<body>
+    <h1>EC2 Instance Information</h1>
+    <table>
+        <tr><th>Property</th><th>Value</th></tr>
+        <tr><td>Instance ID</td><td>{{INSTANCE_ID}}</td></tr>
+        <tr><td>Instance Type</td><td>{{INSTANCE_TYPE}}</td></tr>
+        <tr><td>Region</td><td>{{REGION}}</td></tr>
+        <tr><td>Availability Zone</td><td>{{AVAILABILITY_ZONE}}</td></tr>
+    </table>
+</body>
+</html>
