@@ -14,7 +14,7 @@
             text-align: center;
             color: white;
             padding: 20px;
-            background-color: #4B0082; /* Indigo */
+            background-color: #4B0082;
         }
         table {
             margin: 20px auto;
@@ -28,7 +28,7 @@
             text-align: left;
         }
         th {
-            background-color: #6A5ACD; /* Slate Blue */
+            background-color: #6A5ACD;
             color: white;
         }
         tr:nth-child(even) {
@@ -43,10 +43,15 @@
     <h1>EC2 Instance Information</h1>
     <table>
         <tr><th>Property</th><th>Value</th></tr>
+        <tr><td>Instance Name</td><td>{{INSTANCE_NAME}}</td></tr>
         <tr><td>Instance ID</td><td>{{INSTANCE_ID}}</td></tr>
+        <tr><td>Tag</td><td>{{TAG}}</td></tr>
         <tr><td>Instance Type</td><td>{{INSTANCE_TYPE}}</td></tr>
         <tr><td>Region</td><td>{{REGION}}</td></tr>
         <tr><td>Availability Zone</td><td>{{AVAILABILITY_ZONE}}</td></tr>
+        <tr><td>SSH Key Name</td><td>{{SSH_KEY_NAME}}</td></tr>
+        <tr><td>Ingress Rules</td><td>{{INGRESS_RULES}}</td></tr>
+        <tr><td>Egress Rules</td><td>{{EGRESS_RULES}}</td></tr>
     </table>
 </body>
 </html>
