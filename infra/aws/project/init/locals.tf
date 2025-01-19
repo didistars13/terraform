@@ -5,4 +5,5 @@ locals {
     "stage",
     "prod",
   ]
+  environment_map = { for env in local.environments : env => module.workloads[env] }
 }

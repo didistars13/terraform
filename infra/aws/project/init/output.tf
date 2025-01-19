@@ -1,10 +1,3 @@
-locals {
-  environments = {
-    dev   = module.dev
-    stage = module.stage
-  }
-}
-
 output "dynamodb_table" {
   description = "Value of dynamodb_table"
   value       = resource.aws_dynamodb_table.state_lock.name
@@ -27,5 +20,5 @@ output "bucket_names" {
 
 output "state_lock_tables" {
   description = "The names of the DynamoDB tables in each environment"
-  value       = { for env, module in local.environments : env => module.env_state_lock_table }
+  value       = { for env, module in local.environment_map : env => module.env_state_lock_table }
 }
