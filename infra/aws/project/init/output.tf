@@ -15,7 +15,7 @@ output "force_destroy" {
 
 output "bucket_names" {
   description = "The names of the S3 buckets in each environment"
-  value       = { for env, module in local.environments : env => module.env_tfstate_bucket }
+  value       = { for env, module in local.environment_map : env => module.env_tfstate_bucket }
 }
 
 output "state_lock_tables" {
