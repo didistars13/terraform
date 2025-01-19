@@ -2,7 +2,7 @@
 
 # Install necessary packages and start HTTP server
 sudo yum update -y
-sudo yum install -y httpd
+sudo yum install -y httpd jb
 sudo mkdir -p /var/www/html
 sudo chown -R ec2-user:ec2-user /var/www/html
 sudo chmod -R 775 /var/www/html
@@ -15,7 +15,7 @@ INSTANCE_ID=$(curl -s -H "X-aws-ec2-metadata-token: $TOKEN" http://169.254.169.2
 INSTANCE_TYPE=$(curl -s -H "X-aws-ec2-metadata-token: $TOKEN" http://169.254.169.254/latest/meta-data/instance-type)
 REGION=$(curl -s -H "X-aws-ec2-metadata-token: $TOKEN" http://169.254.169.254/latest/meta-data/placement/region)
 AVAILABILITY_ZONE=$(curl -s -H "X-aws-ec2-metadata-token: $TOKEN" http://169.254.169.254/latest/meta-data/placement/availability-zone)
-SSH_KEY_NAME=$(aws ec2 describe-instances --instance-ids $INSTANCE_ID --query "Reservations[].Instances[].KeyName" --output text)
+SSH_KEY_NAME=$(aws ec2 describe-instances --region $REGION --instance-ids $INSTANCE_ID --query "Reservations[].Instances[].KeyName" --output text)
 TAG=$(aws ec2 describe-tags --region $REGION --filters "Name=resource-id,Values=$INSTANCE_ID" "Name=key,Values=Name" --query "Tags[0].Value" --output text || echo "Not Available")
 INSTANCE_NAME=$(curl -s -H "X-aws-ec2-metadata-token: $TOKEN" http://169.254.169.254/latest/meta-data/hostname)
 

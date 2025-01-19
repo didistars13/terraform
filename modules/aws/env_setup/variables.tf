@@ -1,7 +1,3 @@
-variable "ami" {
-  description = "AMI ID for the EC2 instance"
-  type        = string
-}
 variable "azs" {
   description = "Availability zones to deploy the instance in"
   type        = list(string)

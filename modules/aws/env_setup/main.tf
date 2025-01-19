@@ -12,8 +12,17 @@ resource "aws_iam_instance_profile" "ec2_instance_profile" {
   role = aws_iam_role.ec2_role.name
 }
 
+data "aws_ami" "amazon_linux" {
+  most_recent = true
+  owners      = ["amazon"]
+  filter {
+    name   = "name"
+    values = ["amzn2-ami-hvm-*"]
+  }
+}
+
 resource "aws_instance" "my_server" {
-  ami                         = var.ami
+  ami                         = data.aws_ami.amazon_linux.id
   instance_type               = var.instance_type
   key_name                    = aws_key_pair.deployer_key.key_name
   vpc_security_group_ids      = [aws_security_group.default.id]
