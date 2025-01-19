@@ -1,5 +1,5 @@
 module "dev_ec2" {
-  source              = "../../../../modules/aws/env_setup"
+  source              = "git::https://github.com/didistars13/terraform.git//modules/aws/env_setup?ref=v1.0.0"
   azs                 = local.azs
   env                 = local.env
   instance_type       = local.instance_type

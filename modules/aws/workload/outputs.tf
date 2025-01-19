@@ -1,5 +1,5 @@
 output "env_tfstate_bucket" {
-  value = local.env_tfstate_bucket
+  value = aws_s3_bucket.env_tfstate_bucket.id
 }
 
 output "env_state_lock_table" {

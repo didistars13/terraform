@@ -2,7 +2,7 @@
 
 # Install necessary packages and start HTTP server
 sudo yum update -y
-sudo yum install -y httpd jb
+sudo yum install -y httpd jq
 sudo mkdir -p /var/www/html
 sudo chown -R ec2-user:ec2-user /var/www/html
 sudo chmod -R 775 /var/www/html
