@@ -16,6 +16,7 @@ resource "aws_s3_bucket" "env_tfstate_bucket" {
     ManagedBy   = "Terraform"
   }
 }
+
 resource "aws_s3_bucket_public_access_block" "env_tfstate_bucket_acl" {
   bucket                  = aws_s3_bucket.env_tfstate_bucket.id
   block_public_acls       = true
