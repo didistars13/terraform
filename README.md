@@ -11,3 +11,5 @@ To streamline this, a script has been provided to automate the initialization pr
 2. Configures the Terraform project to use the S3 backend for state management.
 
 After the script completes, the project will be fully initialized and ready for use. No further manual adjustments or configuration changes are necessary.
+
+base64 -w 0 index.html > encoded_index.html

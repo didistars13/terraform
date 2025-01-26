@@ -5,5 +5,6 @@ locals {
     "stage",
     "prod",
   ]
-  environment_map = { for env in local.environments : env => module.workloads[env] }
+  environment_map    = { for env in local.environments : env => module.workloads[env] }
+  terraform_user_arn = "terraform"
 }

@@ -7,6 +7,10 @@ locals {
 resource "aws_s3_bucket" "env_tfstate_bucket" {
   bucket = local.env_tfstate_bucket
 
+  lifecycle {
+    prevent_destroy = true
+  }
+
   tags = {
     Environment = var.env
     ManagedBy   = "Terraform"
@@ -28,6 +32,10 @@ resource "aws_dynamodb_table" "env_state_lock" {
   attribute {
     name = "LockID"
     type = "S"
+  }
+
+  lifecycle {
+    prevent_destroy = true
   }
 
   tags = {
