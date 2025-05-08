@@ -24,7 +24,7 @@ resource "aws_s3_bucket_public_access_block" "env_tfstate_bucket_acl" {
   restrict_public_buckets = true
 }
 
-resource "aws_dynamodb_table" "env_state_lock_on_demand" {
+resource "aws_dynamodb_table" "env_state_lock" {
   name         = "${var.env}-state-lock"
   billing_mode = "PAY_PER_REQUEST"
   hash_key     = "LockID"
