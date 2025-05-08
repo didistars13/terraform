@@ -42,3 +42,4 @@ Thumbs.db
 
 # Dynamic Backend File
 infra/aws/project/init/backend.tf
+credentials.json

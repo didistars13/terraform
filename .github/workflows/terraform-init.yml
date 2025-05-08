@@ -1,0 +1,88 @@
+name: Terraform Init and Migrate
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'infra/aws/project/init/**'
+      - '.github/workflows/terraform-init.yml'
+
+jobs:
+  terraform:
+    name: Init and Migrate Terraform Backend
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+        working-directory: infra/aws/project/init
+
+    env:
+      AWS_REGION: eu-central-1
+      AWS_PROFILE: terraform
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.5.6
+
+      - name: Step 1 – Create local backend config
+        run: |
+          cat <<EOF > backend.tf
+          terraform {
+            backend "local" {
+              path = "terraform.tfstate"
+            }
+          }
+          EOF
+
+      - name: Terraform Init (Local)
+        run: terraform init
+
+      - name: Terraform Apply (Local)
+        run: terraform apply -auto-approve
+
+      - name: Step 2 – Capture S3 and DynamoDB outputs
+        id: outputs
+        run: |
+          echo "bucket_name=$(terraform output -raw main_bucket)" >> $GITHUB_OUTPUT
+          echo "dynamodb_table=$(terraform output -raw dynamodb_table)" >> $GITHUB_OUTPUT
+
+      - name: Step 3 – Switch backend to S3
+        run: |
+          cat <<EOF > backend.tf
+          terraform {
+            backend "s3" {
+              bucket         = "${{ steps.outputs.outputs.bucket_name }}"
+              key            = "terraform.tfstate"
+              region         = "${{ env.AWS_REGION }}"
+              dynamodb_table = "${{ steps.outputs.outputs.dynamodb_table }}"
+            }
+          }
+          EOF
+
+      - name: Wait for backend resources to be ready
+        run: |
+          echo "Waiting for backend to propagate..."
+          sleep 10
+
+      - name: Terraform Init with S3 Backend (Migrate)
+        run: terraform init -migrate-state -input=false
+
+      - name: Terraform Apply (S3 backend)
+        run: terraform apply -auto-approve
+
+      - name: Validate Terraform Configuration
+        run: terraform validate
+
+      - name: Sanity Check – List Terraform Resources
+        run: terraform state list || echo "No resources found"
