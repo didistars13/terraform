@@ -3,7 +3,8 @@ output "env_tfstate_bucket" {
 }
 
 output "env_state_lock_table" {
-  value = aws_dynamodb_table.env_state_lock.name
+  description = "Name of the DynamoDB table used for state locking"
+  value       = local.is_prod ? aws_dynamodb_table.env_state_lock_provisioned[0].name : aws_dynamodb_table.env_state_lock_on_demand[0].name
 }
 
 output "group_name" {

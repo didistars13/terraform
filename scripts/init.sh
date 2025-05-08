@@ -1,10 +1,19 @@
 #!/bin/bash
 
-# Set working directory to the 'init' folder
-cd ../infra/aws/project/init
+set -e  # Exit on error
 
-# Step 1: Initialize and apply the configuration with the local backend to create the S3 bucket
-echo "Step 1: Initializing local backend and creating S3 bucket..."
+cd ../infra/aws/project/init || exit 1
+export AWS_PROFILE=terraform
+
+# Colors
+GREEN='\033[0;32m'
+RED='\033[0;31m'
+NC='\033[0m' # No Color
+
+clear
+
+# Step 1
+echo -e "\n========== Step 1: Initialize local backend and create S3 bucket ==========\n"
 cat <<EOF > backend.tf
 terraform {
   backend "local" {
@@ -16,13 +25,22 @@ EOF
 terraform init
 terraform apply -auto-approve
 
-# Step 2: Capture the bucket name and DynamoDB table name from outputs
-echo "Step 2: Capturing outputs..."
-bucket_name=$(terraform output -raw bucket_name)
+sleep 2
+clear
+
+# Step 2
+echo -e "\n========== Step 2: Capturing Terraform outputs ==========\n"
+bucket_name=$(terraform output -raw main_bucket)
 dynamodb_table=$(terraform output -raw dynamodb_table)
 
-# Step 3: Update backend configuration to use S3
-echo "Step 3: Switching backend to S3 and migrating state..."
+echo -e "${GREEN}Bucket name:${NC} $bucket_name"
+echo -e "${GREEN}DynamoDB table name:${NC} $dynamodb_table"
+
+sleep 3
+clear
+
+# Step 3
+echo -e "\n========== Step 3: Switching backend to S3 and migrating state ==========\n"
 cat <<EOF > backend.tf
 terraform {
   backend "s3" {
@@ -34,11 +52,37 @@ terraform {
 }
 EOF
 
-# Reinitialize Terraform to switch to the S3 backend and migrate state
+echo -n "Waiting for resources to become available"
+for i in {1..5}; do
+  echo -n "."
+  sleep 1
+done
+echo ""
+
 terraform init -migrate-state
 
-# Step 4: Apply the resources to verify everything is working
-echo "Step 4: Applying resources with the S3 backend..."
+sleep 2
+clear
+
+# Step 4
+echo -e "\n========== Step 4: Applying resources with the S3 backend ==========\n"
 terraform apply -auto-approve
 
-echo "Migration and deployment complete!"
+sleep 2
+clear
+
+# Step 5
+echo -e "\n========== Step 5: Sanity check: validate and inspect resources ==========\n"
+
+echo "Validating configuration..."
+if terraform validate; then
+  echo -e "${GREEN}✔ Terraform configuration is valid.${NC}"
+else
+  echo -e "${RED}✖ Validation failed. Please check the configuration.${NC}"
+  exit 1
+fi
+
+echo -e "\nListing current resources in state:"
+terraform state list || echo -e "${RED}✖ No resources found in state.${NC}"
+
+echo -e "\n✅ ${GREEN}Migration, deployment, and validation complete!${NC}\n"

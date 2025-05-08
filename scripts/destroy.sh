@@ -7,6 +7,11 @@ set -e
 BACKEND_DIR="../infra/aws/project/init"
 BACKEND_FILE="backend.tf"
 
+# Colors
+GREEN='\033[0;32m'
+RED='\033[0;31m'
+NC='\033[0m' # No Color
+
 # Function to display usage information
 function usage() {
   echo "Usage: $0 [--auto-approve]"
@@ -26,10 +31,11 @@ function destroy_backend() {
   local dir=$1
 
   if [[ -d "$dir" ]]; then
-    echo "Initializing Terraform with a local backend..."
-    cd "$dir"
+    clear
+    echo -e "\n========== Step 1: Switching backend to local ==========\n"
+    pushd "$dir" > /dev/null
 
-    # Create or overwrite the backend.tf file with local backend configuration
+    echo "Writing local backend configuration to $BACKEND_FILE..."
     cat <<EOF > "$BACKEND_FILE"
 terraform {
   backend "local" {
@@ -38,29 +44,43 @@ terraform {
 }
 EOF
 
-    # Initialize Terraform (now using the backend configuration in backend.tf)
+    echo "Initializing Terraform with local backend..."
+    export AWS_PROFILE=terraform
     terraform init -migrate-state
 
-    echo "Destroying resources in the current backend folder..."
+    clear
+    echo -e "\n========== Step 2: Destroying resources ==========\n"
     if $AUTO_APPROVE; then
       terraform destroy --auto-approve
     else
       terraform destroy
     fi
-    echo "Resources in the current backend folder destroyed."
-    cd - 
+    echo -e "\n${GREEN}✔ Resources destroyed successfully in $dir${NC}\n"
+
+    sleep 2
+    clear
+
+    echo -e "\n========== Step 3: Sanity check – verify destruction ==========\n"
+    if terraform state list | grep .; then
+      echo -e "${RED}✖ Warning: Some resources still appear in the state.${NC}"
+      terraform state list
+    else
+      echo -e "${GREEN}✔ Sanity check passed: No resources found in state.${NC}"
+    fi
+
+    popd > /dev/null
+    sleep 2
+    clear
   else
-    echo "Current backend folder '$dir' not found. Skipping..."
+    echo -e "${RED}✖ Directory '$dir' not found. Skipping...${NC}"
   fi
 }
 
-# Destroy resources in the backend
+# Execute destruction
 destroy_backend "$BACKEND_DIR"
 
-# Clean up temporary files
-echo "Cleaning up temporary and cache files..."
+# Step 4: Clean up cache and .terraform files
+echo -e "\n========== Step 4: Cleaning up cache files ==========\n"
 find "$BACKEND_DIR" -name ".terraform*" -exec rm -rf {} +
 
-echo "Cleanup complete. All Terraform configuration files are intact."
-
-echo "Resources destroyed successfully."
+echo -e "\n✅ ${GREEN}Cleanup complete. All Terraform configuration files are intact.${NC}\n"
