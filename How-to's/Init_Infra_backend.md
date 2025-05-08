@@ -1,19 +1,20 @@
 # Terraform Backend Initialization Script
 
 ## Overview
-This script automates the initialization and migration process of a Terraform project with two backends:
-1. A **local backend** to create an **S3 bucket**.
-2. A subsequent switch to an **S3 backend** for state management.
 
-The process ensures that resources are applied to the local backend first, then migrates the state to an S3 backend for future operations.
+This script automates the initialization and migration process of a Terraform project with two backends:
+1. A **local backend** to create an **S3 bucket** and **DynamoDB table**.
+2. A subsequent switch to an **S3 backend** for remote state management.
+
+The process ensures that Terraform resources are first created locally, then the state is migrated to S3 and locked using DynamoDB, enabling secure and collaborative infrastructure management.
 
 ---
 
 ## Script Steps
 
-### Step 1: Initialize and Apply the Local Backend to Create the S3 Bucket
+### ✅ Step 1: Initialize and Apply the Local Backend
+
 ```bash
-echo "Step 1: Initializing local backend and creating S3 bucket..."
 cd ../infra/aws/project/init
 cat <<EOF > backend.tf
 terraform {
@@ -26,19 +27,25 @@ EOF
 terraform init
 terraform apply -auto-approve
 ```
-* The local backend is initialized, and the `terraform apply` command is used to create the necessary S3 bucket.
 
-### Step 2: Capture the Bucket Name and DynamoDB Table Name from Outputs
+This initializes a local backend and deploys an S3 bucket and a DynamoDB table needed for remote state and locking.
+
+---
+
+### ✅ Step 2: Capture Bucket and Table Names Dynamically
+
 ```bash
-echo "Step 2: Capturing outputs..."
-bucket_name=$(terraform output -raw bucket_name)
+bucket_name=$(terraform output -raw main_bucket)
 dynamodb_table=$(terraform output -raw dynamodb_table)
 ```
-* After the local backend is applied, the script captures the `bucket_name` and `dynamodb_table` outputs from Terraform to configure the S3 backend.
 
-### Step 3: Update Backend Configuration to Use S3
+These outputs are used in the next step to configure the S3 backend.
+
+---
+
+### ✅ Step 3: Configure and Migrate to the S3 Backend
+
 ```bash
-echo "Step 3: Switching backend to S3 and migrating state..."
 cat <<EOF > backend.tf
 terraform {
   backend "s3" {
@@ -49,83 +56,114 @@ terraform {
   }
 }
 EOF
-```
-* The script dynamically generates the `backend.tf` configuration file, using the previously captured `bucket_name` and `dynamodb_table` to configure the S3 backend.
 
-### Step 4: Reinitialize Terraform to Switch to S3 Backend and Migrate State
-```bash
 terraform init -migrate-state
 ```
-* Terraform is reinitialized with the `-migrate-state` flag to migrate the existing state to the newly configured S3 backend.
 
-   **NOTE:** this step requires manuall confirmation **"yes"** or **"no"**
+The script replaces the local backend with a remote S3 configuration and triggers a state migration.
 
-### Step 5: Apply Resources with the S3 Backend
+> **Note:** The `-migrate-state` step may prompt for confirmation. Make sure to allow it (`yes`) if prompted.
+
+---
+
+### ✅ Step 4: Apply Resources with the S3 Backend
+
 ```bash
 terraform apply -auto-approve
 ```
-* Finally, the script applies the resources in the main Terraform configuration now that the state is managed by the S3 backend.
+
+Once the remote backend is in place, the infrastructure is applied again to ensure consistency and state integrity.
 
 ---
 
-## Usage
+### ✅ Step 5: Sanity Check – Validate & List State Resources
 
-### Prerequisites
+```bash
+terraform validate
+terraform state list
+```
 
-1. **Terraform Installed**:
-   * Ensure that `terraform` is installed and accessible in your system's `PATH`.
+- Runs `terraform validate` to ensure configuration is syntactically and logically correct.
+- Lists all resources currently in the state file.
+- If no resources are found, a warning is shown.
 
-2. **Directory Structure**:
-   * The script assumes the following directory structure:
-     * Local Backend Directory: `../infra/aws/project/init`
+---
 
-### How to Run the Script
-1. Navigate to your Terraform project directory and switch to `scripts` folder
+## Usage Instructions
+
+### 🔧 Prerequisites
+
+- **Terraform installed** and available in your system's `PATH`.
+- **AWS credentials** available via `AWS_PROFILE=terraform` or exported via environment variables.
+- **Directory structure**:
+  ```
+  /infra
+    /aws
+      /project
+        /init
+          env_modules.tf
+          ...
+    /modules
+  /scripts
+    init.sh
+  ```
+
+### 🚀 Running the Script
+
+1. Navigate to the scripts folder:
    ```bash
-   /repos/terraform❯ cd scripts/
+   cd scripts/
    ```
-2. Execute the script using:
+
+2. Run the script:
    ```bash
    bash init.sh
    ```
-3. The script will:
-   * Initialize and apply the local backend.
-   * Create the S3 bucket and DynamoDB table.
-   * Migrate the Terraform state to the S3 backend.
-   * Apply the configuration using the new S3 backend.
 
----
-
-## Important Notes
-
-* **Non-Destructive Configuration**:
-  * The script keeps your Terraform configuration files intact and only modifies the backend configuration dynamically.
-
-* **Error Handling**:
-  * If any step fails (e.g., directory navigation or Terraform commands), the script will exit with an error message and halt further execution.
-
-* **Automated State Migration**:
-  * Ensure that the initial local state file (`terraform.tfstate`) exists before running the migration step.
+This will:
+- Deploy initial resources with a local backend
+- Dynamically reconfigure Terraform to use S3
+- Migrate the state
+- Re-apply and validate the configuration
 
 ---
 
 ## Example Output
+
 ```plaintext
-Step 1: Initializing local backend and creating S3 bucket...
-Terraform initialized successfully.
+========== Step 1: Initialize local backend and create S3 bucket ==========
+
+Terraform has been successfully initialized!
 Terraform applied successfully.
 
-Step 2: Capturing outputs...
-Bucket Name: my-terraform-state-bucket
-DynamoDB Table: my-terraform-lock-table
+========== Step 2: Capturing Terraform outputs ==========
 
-Step 3: Switching backend to S3 and migrating state...
+Bucket name: my-env-tfstate-bucket
+DynamoDB table name: my-env-lock-table
+
+========== Step 3: Switching backend to S3 and migrating state ==========
+Waiting for resources to become available.....
+
 Terraform initialized with S3 backend.
-State migration completed successfully.
+State migration completed.
 
-Step 4: Applying resources with the S3 backend...
-No changes. Your infrastructure matches the configuration.
+========== Step 4: Applying resources with the S3 backend ==========
 
-Migration and deployment complete!
+Apply complete! No changes needed.
+
+========== Step 5: Sanity check: validate and inspect resources ==========
+
+✔ Terraform configuration is valid.
+aws_s3_bucket.main
+aws_dynamodb_table.lock_table
+
+✅ Migration, deployment, and validation complete!
 ```
 
+---
+
+## Notes
+
+- ✅ The script ensures **safe and reversible** configuration changes.
+- ⛔ Do not run this script if you already have a working remote backend unless you're initializing a new environment.
+- 🛡️ Sanity checks help verify infrastructure health post-migration.
