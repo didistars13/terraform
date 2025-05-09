@@ -1,4 +1,4 @@
-name: Terraform Ifra Update
+name: Terraform Infra Update
 # This workflow is triggered on changes to the Terraform configuration files
 # in the specified directory. It initializes the Terraform backend and
 # migrates the state to a new backend if necessary.
