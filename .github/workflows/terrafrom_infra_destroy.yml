@@ -29,15 +29,15 @@ jobs:
 
 
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
       - name: Validate confirmation input
         run: |
           if [ "${{ github.event.inputs.confirm }}" != "YES_I_UNDERSTAND" ]; then
             echo "::error ::Invalid confirmation. Type YES_I_UNDERSTAND to proceed."
             exit 1
           fi
-
-      - name: Checkout repository
-        uses: actions/checkout@v3
 
       - name: ⚠️ WARNING – Manual Use Only
         run: |
