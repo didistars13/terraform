@@ -24,21 +24,14 @@ jobs:
 
     env:
       AWS_REGION: eu-central-1
+      TF_BACKEND_BUCKET: ${{ secrets.TF_BACKEND_BUCKET }}
+      TF_BACKEND_KEY: ${{ secrets.TF_BACKEND_KEY }}
+      TF_BACKEND_REGION: ${{ secrets.TF_BACKEND_REGION }}
+      TF_BACKEND_LOCK_TABLE: ${{ secrets.TF_BACKEND_LOCK_TABLE }}
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
-        
-      - name: Debug OIDC token
-        run: |
-          echo "Requesting token..."
-          curl -s -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" "$ACTIONS_ID_TOKEN_REQUEST_URL"
-        env:
-          ACTIONS_ID_TOKEN_REQUEST_TOKEN: ${{ steps.generate-token.outputs.token }}
-          ACTIONS_ID_TOKEN_REQUEST_URL: ${{ steps.generate-token.outputs.url }}
-
-      - name: Debug AWS_ROLE_TO_ASSUME
-        run: echo "Role to assume is ${{ secrets.AWS_ROLE_TO_ASSUME }}"
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
@@ -51,54 +44,18 @@ jobs:
         with:
           terraform_version: 1.5.6
 
-      - name: Step 1 – Create local backend config
+      - name: Generate backend.tf from template
         run: |
-          cat <<EOF > backend.tf
-          terraform {
-            backend "local" {
-              path = "terraform.tfstate"
-            }
-          }
-          EOF
+          envsubst < backend.tf.tmpl > backend.tf
 
-      - name: Terraform Init (Local)
-        run: terraform init
+      - name: Terraform Init
+        run: terraform init -input=false
 
-      - name: Terraform Apply (Local)
-        run: terraform apply -auto-approve
-
-      - name: Step 2 – Capture S3 and DynamoDB outputs
-        id: outputs
-        run: |
-          echo "bucket_name=$(terraform output -raw main_bucket)" >> "$GITHUB_OUTPUT"
-          echo "dynamodb_table=$(terraform output -raw dynamodb_table)" >> "$GITHUB_OUTPUT"
-
-      - name: Step 3 – Switch backend to S3
-        run: |
-          cat <<EOF > backend.tf
-          terraform {
-            backend "s3" {
-              bucket         = "${{ steps.outputs.outputs.bucket_name }}"
-              key            = "terraform.tfstate"
-              region         = "${{ env.AWS_REGION }}"
-              dynamodb_table = "${{ steps.outputs.outputs.dynamodb_table }}"
-            }
-          }
-          EOF
-
-      - name: Wait for backend resources to be ready
-        run: |
-          echo "Waiting for backend to propagate..."
-          sleep 10
-
-      - name: Terraform Init with S3 Backend (Migrate)
-        run: terraform init -migrate-state -input=false
-
-      - name: Terraform Apply (S3 backend)
+      - name: Terraform Apply
         run: terraform apply -auto-approve
 
       - name: Validate Terraform Configuration
         run: terraform validate
 
-      - name: Sanity Check – List Terraform Resources
+      - name: List Terraform Resources
         run: terraform state list || echo "No resources found"
