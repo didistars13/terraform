@@ -2,6 +2,10 @@ name: 🛠️ Terraform Init (Manual Bootstrap Only)
 
 on:
   workflow_dispatch:  # Manual trigger only
+    inputs:
+      confirm:
+        description: "Type YES_I_UNDERSTAND to confirm destruction"
+        required: true
 
 permissions:
   id-token: write
@@ -32,6 +36,13 @@ jobs:
         run: |
           echo "::warning ::This workflow should only be run manually during initial infrastructure setup."
           echo "::warning ::It creates backend resources and migrates state to S3. Do not use casually."
+
+      - name: Validate confirmation input
+        run: |
+          if [ "${{ github.event.inputs.confirm }}" != "YES_I_UNDERSTAND" ]; then
+            echo "::error ::Invalid confirmation. Type YES_I_UNDERSTAND to proceed."
+            exit 1
+          fi
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
