@@ -1,4 +1,20 @@
-name: Terraform Init and Migrate
+name: Terraform Ifra Update
+# This workflow is triggered on changes to the Terraform configuration files
+# in the specified directory. It initializes the Terraform backend and
+# migrates the state to a new backend if necessary.
+# It also validates the Terraform configuration and lists the resources in the state.
+# The workflow is triggered manually or on pushes to the main branch.
+# It uses AWS credentials and Terraform backend configuration stored in GitHub secrets.
+# The workflow runs on the latest Ubuntu environment and uses the AWS CLI and Terraform CLI.
+# The workflow consists of several steps:
+# 1. Checkout the repository
+# 2. Configure AWS credentials using the AWS role to assume
+# 3. Setup Terraform with the specified version
+# 4. Generate the backend configuration file from a template
+# 5. Initialize the Terraform backend
+# 6. Apply the Terraform configuration to migrate the state
+# 7. Validate the Terraform configuration
+# 8. List the resources in the Terraform state
 
 on:
   workflow_dispatch:

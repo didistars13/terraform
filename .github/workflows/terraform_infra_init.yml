@@ -1,0 +1,70 @@
+name: 🛠️ Terraform Init (Manual Bootstrap Only)
+
+on:
+  workflow_dispatch:  # Manual trigger only
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  init:
+    name: 🧨 CAREFUL – One-time Init + Backend Migration
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+        working-directory: infra/aws/project/init
+
+    env:
+      AWS_REGION: eu-central-1
+      TF_BACKEND_REGION: eu-central-1
+      TF_BACKEND_KEY: project/init/terraform.tfstate
+      TF_BACKEND_BUCKET: ${{ secrets.TF_BACKEND_BUCKET }}
+      TF_BACKEND_LOCK_TABLE: ${{ secrets.TF_BACKEND_LOCK_TABLE }}
+
+    steps:
+      - name: ⚠️ WARNING
+        run: |
+          echo "::warning ::This workflow should only be run manually during initial infrastructure setup."
+          echo "::warning ::It creates backend resources and migrates state to S3. Do not use casually."
+
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.5.6
+
+      - name: Step 1 – Bootstrap with local backend
+        run: |
+          cat <<EOF > backend.tf
+          terraform {
+            backend "local" {
+              path = "terraform.tfstate"
+            }
+          }
+          EOF
+          terraform init
+          terraform apply -auto-approve
+
+      - name: Step 2 – Capture backend outputs
+        id: outputs
+        run: |
+          echo "TF_BACKEND_BUCKET=$(terraform output -raw main_bucket)" >> "$GITHUB_ENV"
+          echo "TF_BACKEND_LOCK_TABLE=$(terraform output -raw dynamodb_table)" >> "$GITHUB_ENV"
+
+      - name: Step 3 – Switch to S3 backend and migrate state
+        run: |
+          envsubst < backend.tf.tmpl > backend.tf
+          terraform init -migrate-state -input=false
+
+      - name: Final Apply (S3 Backend)
+        run: terraform apply -auto-approve
