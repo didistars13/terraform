@@ -29,11 +29,6 @@ jobs:
 
 
     steps:
-      - name: ⚠️ WARNING – Manual Use Only
-        run: |
-          echo "::warning ::This workflow will destroy infrastructure in AWS!"
-          echo "::warning ::Only run if you are absolutely sure."
-
       - name: Validate confirmation input
         run: |
           if [ "${{ github.event.inputs.confirm }}" != "YES_I_UNDERSTAND" ]; then
@@ -43,6 +38,11 @@ jobs:
 
       - name: Checkout repository
         uses: actions/checkout@v3
+
+      - name: ⚠️ WARNING – Manual Use Only
+        run: |
+          echo "::warning ::This workflow will destroy infrastructure in AWS!"
+          echo "::warning ::Only run if you are absolutely sure."
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
