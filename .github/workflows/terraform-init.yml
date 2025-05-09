@@ -3,9 +3,15 @@ name: Terraform Init and Migrate
 on:
   workflow_dispatch:
   push:
+    branches:
+      - main
     paths:
       - 'infra/aws/project/init/**'
       - '.github/workflows/terraform-init.yml'
+
+permissions:
+  id-token: write
+  contents: read
 
 jobs:
   terraform:
@@ -23,6 +29,17 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+        
+      - name: Debug OIDC token
+        run: |
+          echo "Requesting token..."
+          curl -s -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" "$ACTIONS_ID_TOKEN_REQUEST_URL"
+        env:
+          ACTIONS_ID_TOKEN_REQUEST_TOKEN: ${{ steps.generate-token.outputs.token }}
+          ACTIONS_ID_TOKEN_REQUEST_URL: ${{ steps.generate-token.outputs.url }}
+
+      - name: Debug AWS_ROLE_TO_ASSUME
+        run: echo "Role to assume is ${{ secrets.AWS_ROLE_TO_ASSUME }}"
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
