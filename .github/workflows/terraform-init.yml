@@ -24,7 +24,6 @@ jobs:
 
     env:
       AWS_REGION: eu-central-1
-      AWS_PROFILE: terraform
 
     steps:
       - name: Checkout repository
