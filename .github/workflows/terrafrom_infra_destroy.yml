@@ -13,7 +13,7 @@ permissions:
 
 jobs:
   destroy:
-    name: 🔥 Destroy Infrastructure via Local Backend
+    name: 🔥 Destroy Infrastructure via Migrated Local Backend
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -22,7 +22,11 @@ jobs:
 
     env:
       AWS_REGION: eu-central-1
-      AWS_PROFILE: terraform  # Optional if using credentials directly
+      AWS_PROFILE: terraform
+      TF_BACKEND_REGION: eu-central-1
+      TF_BACKEND_BUCKET: ${{ secrets.TF_BACKEND_BUCKET }}
+      TF_BACKEND_KEY: ${{ secrets.TF_BACKEND_KEY }}
+      TF_BACKEND_LOCK_TABLE: ${{ secrets.TF_BACKEND_LOCK_TABLE }}
 
     steps:
       - name: Checkout repository
@@ -45,15 +49,23 @@ jobs:
         with:
           role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
           aws-region: ${{ env.AWS_REGION }}
-      
+
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
         with:
           terraform_version: 1.5.6
 
-      - name: Step 1 – Switch backend to local
+      - name: Step 1 – Generate S3 backend config
         run: |
-          echo "Switching backend to local..."
+          echo "Generating backend.tf (S3)..."
+          envsubst < backend.tf.tmpl > backend.tf
+
+      - name: Step 2 – Init from S3 backend
+        run: terraform init -input=false
+
+      - name: Step 3 – Switch to local backend and migrate
+        run: |
+          echo "Switching backend to local and migrating state..."
           cat <<EOF > backend.tf
           terraform {
             backend "local" {
@@ -63,15 +75,15 @@ jobs:
           EOF
           terraform init -migrate-state -force-copy -input=false
 
-      - name: Step 2 – Terraform Destroy
+      - name: Step 4 – Terraform Destroy
         run: terraform destroy -auto-approve
 
-      - name: "Step 3 – Sanity check: Is state empty?"
+      - name: "Step 5 – Sanity check: Is state empty?"
         run: |
           echo "Verifying state is empty..."
           terraform state list || echo "✅ No resources in state."
 
-      - name: Step 4 – Clean up .terraform files
+      - name: Step 6 – Clean up .terraform files
         run: |
           echo "Cleaning up local .terraform files..."
           rm -rf .terraform .terraform.lock.hcl terraform.tfstate*
