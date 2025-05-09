@@ -25,6 +25,9 @@ jobs:
       AWS_PROFILE: terraform  # Optional if using credentials directly
 
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
       - name: ⚠️ WARNING – Confirm Destruction
         run: |
           echo "::warning ::This will destroy live infrastructure."
@@ -36,9 +39,6 @@ jobs:
             echo "::error ::Invalid confirmation. Type YES_I_UNDERSTAND to proceed."
             exit 1
           fi
-
-      - name: Checkout repository
-        uses: actions/checkout@v3
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
