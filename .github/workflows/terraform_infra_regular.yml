@@ -23,7 +23,7 @@ on:
       - main
     paths:
       - 'infra/aws/project/init/**'
-      - '.github/workflows/terraform-init.yml'
+      - '.github/workflows/terraform_infra_regular.yml'
 
 permissions:
   id-token: write
