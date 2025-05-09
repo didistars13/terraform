@@ -22,7 +22,6 @@ jobs:
 
     env:
       AWS_REGION: eu-central-1
-      AWS_PROFILE: terraform
       TF_BACKEND_REGION: eu-central-1
       TF_BACKEND_BUCKET: ${{ secrets.TF_BACKEND_BUCKET }}
       TF_BACKEND_KEY: ${{ secrets.TF_BACKEND_KEY }}
