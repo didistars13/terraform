@@ -4,7 +4,7 @@ on:
   workflow_dispatch:  # Manual trigger only
     inputs:
       confirm:
-        description: "Type YES_I_UNDERSTAND to confirm destruction"
+        description: "Type YES_I_UNDERSTAND to confirm initialization"
         required: true
 
 permissions:
