@@ -59,7 +59,7 @@ jobs:
       - name: Step 2 – Switch to S3 backend and migrate state
         run: |
           envsubst < backend.tf.tmpl > backend.tf
-          terraform init -migrate-state -input=false
+          terraform init -migrate-state -force-copy -input=false
 
       - name: Final Apply (S3 Backend)
         run: terraform apply -auto-approve
