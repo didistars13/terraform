@@ -25,13 +25,13 @@ jobs:
 
 
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
       - name: ⚠️ WARNING
         run: |
           echo "::warning ::This workflow should only be run manually during initial infrastructure setup."
           echo "::warning ::It creates backend resources and migrates state to S3. Do not use casually."
-
-      - name: Checkout repository
-        uses: actions/checkout@v3
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
