@@ -1,16 +1,10 @@
-name: 🚀 Terraform Deploy Multi-Env
+name: 🚀 Terraform Deploy Dev (Auto)
 
 on:
-  workflow_dispatch:
-    inputs:
-      environment:
-        description: "Select environment to deploy"
-        required: true
-        type: choice
-        options:
-          - dev
-          - stage
-          - production
+  push:
+    paths:
+      - 'infra/aws/env/dev/**'
+      - 'modules/aws/env_setup/**'
 
 permissions:
   id-token: write
@@ -18,12 +12,12 @@ permissions:
 
 jobs:
   terraform:
-    name: 🚀 Deploy to ${{ github.event.inputs.environment }}
+    name: 🚀 Deploy Dev Environment
     runs-on: ubuntu-latest
     defaults:
       run:
         shell: bash
-        working-directory: infra/aws/env/${{ github.event.inputs.environment }}
+        working-directory: infra/aws/env/dev
 
     steps:
       - name: Checkout repository

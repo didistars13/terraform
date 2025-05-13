@@ -1,0 +1,46 @@
+name: 🚀 Terraform Deploy Production (Manual Only)
+
+on:
+  workflow_dispatch: {}
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  terraform:
+    name: 🚀 Deploy Production Environment
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+        working-directory: infra/aws/env/production
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+          aws-region: eu-central-1
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.5.6
+
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Terraform Plan
+        run: |
+          terraform plan \
+            -var='public_key=${{ secrets.SSH_PUBLIC_KEY }}' \
+            -var='private_key=${{ secrets.SSH_PRIVATE_KEY }}' \
+            -var='allowed_cidr_blocks=${{ secrets.ALLOWED_CIDR_BLOCKS }}' \
+            -out=tfplan
+
+      - name: Terraform Apply
+        run: terraform apply -auto-approve tfplan
