@@ -7,8 +7,8 @@ module "dev_ec2" {
   instance_name       = local.instance_name
   key_name            = local.key_name
   allowed_cidr_blocks = var.allowed_cidr_blocks
-  private_key         = local.private_key
-  public_key          = local.public_key
+  private_key         = var.private_key
+  public_key          = var.public_key
   public_subnet       = local.public_subnet
   region              = local.region
   vpc_cidr            = local.vpc_cidr
