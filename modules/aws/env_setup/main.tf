@@ -7,11 +7,6 @@ resource "aws_key_pair" "deployer_key" {
   public_key = var.public_key
 }
 
-resource "aws_iam_instance_profile" "ec2_instance_profile" {
-  name = "${var.env}-ec2-instance-profile"
-  role = aws_iam_role.ec2_role.name
-}
-
 data "aws_ami" "amazon_linux" {
   most_recent = true
   owners      = ["amazon"]
@@ -26,10 +21,9 @@ resource "aws_instance" "my_server" {
   instance_type               = var.instance_type
   key_name                    = aws_key_pair.deployer_key.key_name
   vpc_security_group_ids      = [aws_security_group.default.id]
-  subnet_id                   = module.vpc.public_subnets[0]
+  subnet_id                   = aws_subnet.public.id
   associate_public_ip_address = true
   user_data                   = file("${path.module}/userdata.sh")
-  iam_instance_profile        = aws_iam_instance_profile.ec2_instance_profile.name
 
   tags = {
     Name = var.instance_name

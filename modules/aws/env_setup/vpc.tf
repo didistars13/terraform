@@ -1,16 +1,45 @@
-module "vpc" {
-  source          = "terraform-aws-modules/vpc/aws"
-  name            = var.vpc_name
-  cidr            = var.vpc_cidr
-  azs             = var.azs
-  private_subnets = var.private_subnets
-  public_subnets  = var.public_subnets
-
-  enable_nat_gateway = true
-  enable_vpn_gateway = true
+resource "aws_vpc" "main" {
+  cidr_block = var.vpc_cidr
 
   tags = {
-    Environment = var.vpc_name
-    Terraform   = "true"
+    Name = var.vpc_name
   }
+}
+
+resource "aws_internet_gateway" "main" {
+  vpc_id = aws_vpc.main.id
+
+  tags = {
+    Name = "${var.vpc_name}-igw"
+  }
+}
+
+resource "aws_subnet" "public" {
+  vpc_id            = aws_vpc.main.id
+  cidr_block        = var.public_subnet
+  availability_zone = var.az
+
+  map_public_ip_on_launch = true
+
+  tags = {
+    Name = "${var.vpc_name}-public"
+  }
+}
+
+resource "aws_route_table" "public" {
+  vpc_id = aws_vpc.main.id
+
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.main.id
+  }
+
+  tags = {
+    Name = "${var.vpc_name}-public-rt"
+  }
+}
+
+resource "aws_route_table_association" "public" {
+  subnet_id      = aws_subnet.public.id
+  route_table_id = aws_route_table.public.id
 }

@@ -7,9 +7,9 @@ output "instance_public_ip" {
 }
 
 output "vpc_id" {
-  value = module.vpc.vpc_id
+  value = aws_vpc.main.id
 }
 
 output "igw_id" {
-  value = module.vpc.igw_id
+  value = aws_internet_gateway.main.id
 }

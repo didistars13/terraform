@@ -1,7 +1,7 @@
 resource "aws_security_group" "default" {
   name        = "default_ports"
   description = "Default ports for the VPC"
-  vpc_id      = module.vpc.vpc_id
+  vpc_id      = aws_vpc.main.id
 
   ingress = [
     {

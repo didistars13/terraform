@@ -1,6 +1,6 @@
-variable "azs" {
-  description = "Availability zones to deploy the instance in"
-  type        = list(string)
+variable "az" {
+  description = "Availability zone to deploy the instance in"
+  type        = string
 }
 
 variable "env" {
@@ -34,14 +34,9 @@ variable "private_key" {
   type        = string
 }
 
-variable "private_subnets" {
-  description = "CIDR blocks for the private subnets"
-  type        = list(string)
-}
-
-variable "public_subnets" {
-  description = "CIDR blocks for the public subnets"
-  type        = list(string)
+variable "public_subnet" {
+  description = "CIDR block for the public subnets"
+  type        = string
 }
 
 variable "public_key" {
