@@ -2,7 +2,7 @@ name: 🚀 Terraform Deploy Stage
 
 on:
   workflow_run:
-    workflows: ["🚀 Terraform Deploy Dev"]
+    workflows: ["🚀 Terraform Deploy Dev (Auto)"]
     types:
       - completed
 
