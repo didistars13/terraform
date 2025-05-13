@@ -44,7 +44,7 @@ jobs:
         run: terraform init
 
       - name: Terraform Plan
-        run: terraform plan -out=tfplan
+        run: terraform plan -var="allowed_cidr_blocks=[\"${{ secrets.ALLOWED_CIDR_BLOCKS }}\"]" -out=tfplan
 
       - name: Terraform Apply
         run: terraform apply -auto-approve tfplan
