@@ -1,0 +1,7 @@
+apiVersion: v2
+name: postcodes-api
+description: Backend API service for Swiss postcode lookup
+
+type: application
+version: 0.1.0
+appVersion: "0.1.0"

@@ -1,0 +1,7 @@
+apiVersion: v2
+name: ui
+description: Web UI for Swiss Postcode Lookup App
+
+type: application
+version: 0.1.0
+appVersion: "0.1.0"

@@ -1,0 +1,19 @@
+image:
+  repository: postgres
+  tag: "13.12"
+  pullPolicy: IfNotPresent
+
+postgresql:
+  username: user
+  password: changeme
+  database: postcodes_db
+
+persistence:
+  enabled: true
+  storageClass: ""
+  accessMode: ReadWriteOnce
+  size: 1Gi
+
+service:
+  type: ClusterIP
+  port: 5432

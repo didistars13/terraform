@@ -1,0 +1,145 @@
+global:
+  image:
+    tag: 0.0.1-alpha
+  env: dev
+  # currently supported values "aws" and "local"
+  platform: local
+
+  # secrets - global secrets that can be used for local deployment only
+  # Explanation:
+  # 1. By default, each sub-chart has "secrets" section with "value:key" structure in its sub-chart values.yaml file
+  # 2. Each sub-chart creates k8s secret with "value=key" endpoints from secrets section which locates in its sub-chart values.yaml file
+  # 3. Umbrella chart contains secrets section in global values.yaml file with empty endpoints (by default) which could be extended with "value:key" structure
+  #    - value = env.var
+  #    - key = env.parameter
+  # 4. During local helm chart deploy values/keys from sub-chart could be extended with values/keys from global chart - if they are not presented in sub-chart
+  # 5. During local helm chart deploy keys from sub-chart will be overwritten with keys from global chart - if they have identical values
+  secrets: {}
+
+  # env_vars - environment variables common to all deployments
+  # Explanation:
+  # 1. By default, each sub-chart has "env_vars" section with "value:key" structure in its sub-chart values.yaml file
+  #    - value = env.var
+  #    - key = env.parameter
+  # 2. Umbrella chart contains "env_vars" section in global values.yaml file which could be extended with "value:key" structure
+  #    - value = env.var
+  #    - key = env.parameter
+  # 4. During any helm chart deploy values/keys from sub-chart could be extended with values/keys from global chart - if they are not presented in sub-chart
+  # 5. During any helm chart deploy keys from sub-chart will be overwritten with keys from global chart - if they have identical values
+  env_vars:
+    # Airflow
+    AIRFLOW__CORE__EXECUTOR: LocalExecutor
+    AIRFLOW__CORE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@airbyte-db:5432/airflow
+    AIRFLOW__CORE__FERNET_KEY: 12345678901234567890123456789012
+    AIRFLOW__WEBSERVER__WORKERS: 1
+    AIRFLOW__WEBSERVER__WEB_SERVER_PORT: 8080
+    AIRFLOW__WEBSERVER__EXPOSE_CONFIG: True 
+
+ingress:
+  enabled: false
+  host:
+  staticIpName:
+  sslCert:
+
+server:                                                                  # Server sub-chart configuration
+  esp:                                                                   # ESP configuration
+    enabled: false
+    cloudEndpoint:                                                       # Cloud Endpoint URL you created
+  image:
+    repository: airbyte/server-wrapped                                   # we override default repo and tag because of usage of non public images
+    tag: dev
+  imagePullSecrets:
+    - name: airbyte-private                                              # name of a secret containing DockerHub creds
+  resources: {}
+  gsm: {}
+  env_vars: {}
+
+cloud-server:
+  esp:
+    enabled: false
+    cloudEndpoint:
+  image:
+    repository: airbyte/cloud-server
+    tag: dev
+  imagePullSecrets:
+    - name: airbyte-private
+  resources: {}
+  gsm: {}
+  env_vars: {}
+
+cloud-partner-server:
+  esp:
+    enabled: false
+    cloudEndpoint:
+  image:
+    repository: airbyte/cloud-partner-server
+    tag: dev
+  imagePullSecrets:
+    - name: airbyte-private
+  resources: {}
+  gsm: {}
+  env_vars: {}
+
+pod-sweeper:
+  resources: {}
+
+temporal:
+  resources: {}
+  gsm: {}
+  env_vars: {}
+
+temporal_tools:
+  resources: {}
+  env_vars: {}
+
+webapp:
+  image:
+    tag: test-local
+  resources: {}
+  gsm: {}
+  env_vars: {}
+
+worker:
+  resources: {}
+  gsm: {}
+  env_vars: {}
+
+bootloader:
+  image:
+    tag: dev
+  resources: {}
+  gsm: {}
+  env_vars: {}
+
+cloud-bootloader:
+  image:
+    tag: dev
+  resources: {}
+  gsm: {}
+  env_vars: {}
+
+billing:
+  image:
+    repository: airbyte/billing
+    tag: dev
+  imagePullSecrets:
+    - name: airbyte-private
+  gsm: {}
+  env_vars: {}
+
+# Local tooling
+db:
+  enabled: true
+  containerPort: 5432
+
+fixtures:
+  enabled: true
+
+proxy:
+  enabled: true
+
+minio:
+  enabled: true
+  accessKey: minio
+  secretKey: minio123
+  endpoint: airbyte-minio-svc.default.svc.cluster.local

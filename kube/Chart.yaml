@@ -1,0 +1,22 @@
+apiVersion: v2
+name: swiss-postcodes
+description: Kubernetes Helm chart for Swiss postcode lookup application (Appenzell AR/AI)
+
+type: application
+version: 0.1.0
+appVersion: "0.1.0"
+
+# Define component charts (these will be defined under ./charts/ or as external dependencies)
+dependencies:
+  - name: api
+    version: 0.1.0
+    repository: "file://../postcodes-api"
+  - name: ui
+    version: 0.1.0
+    repository: "file://../ui"
+  - name: postgres
+    version: 0.1.0
+    repository: "file://../postgres"
+  - name: worker
+    version: 0.1.0
+    repository: "file://../worker"

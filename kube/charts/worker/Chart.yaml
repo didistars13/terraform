@@ -1,0 +1,7 @@
+apiVersion: v2
+name: worker
+description: Background data sync/processing job for Swiss postcodes
+
+type: application
+version: 0.1.0
+appVersion: "0.1.0"

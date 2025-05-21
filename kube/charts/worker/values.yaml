@@ -1,0 +1,15 @@
+image:
+  repository: ghcr.io/yourusername/postcodes-worker
+  tag: "latest"
+  pullPolicy: IfNotPresent
+
+replicaCount: 1
+
+schedule: ""  # If you want to convert it to a CronJob later
+
+env:
+  DB_HOST: postgres
+  DB_PORT: "5432"
+  DB_NAME: postcodes_db
+  DB_USER: user
+  DB_PASSWORD: changeme
